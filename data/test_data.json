@@ -1,0 +1,16 @@
+{
+    "valid_user": {
+        "username": "testuser",
+        "password": "123456"
+    },
+    "duplicate_user": {
+        "username": "dupuser",
+        "password": "123456"
+    },
+    "wrong_password_user": {
+        "username": "wronguser",
+        "password": "123456",
+        "wrong_password": "wrong"
+    },
+    "not_exist_user": "notexistuser"
+}
