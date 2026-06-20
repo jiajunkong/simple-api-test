@@ -13,7 +13,7 @@ def init_db(db_path="test.db"):
     conn = get_connection(db_path)
     cursor = conn.cursor()
 
-    # 创建用户表
+    # 用户表（保留）
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -23,15 +23,56 @@ def init_db(db_path="test.db"):
         )
     """)
 
+    # 设备表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS devices (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            device_id TEXT UNIQUE NOT NULL,
+            device_name TEXT NOT NULL,
+            device_type TEXT,
+            status TEXT DEFAULT 'offline',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # 传感器数据表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS sensor_data (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            device_id TEXT NOT NULL,
+            temperature REAL,
+            humidity REAL,
+            battery INTEGER,
+            timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (device_id) REFERENCES devices (device_id)
+        )
+    """)
+
+    # 告警表
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            device_id TEXT NOT NULL,
+            alert_type TEXT NOT NULL,
+            alert_value TEXT,
+            status TEXT DEFAULT 'active',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (device_id) REFERENCES devices (device_id)
+        )
+    """)
+
     conn.commit()
     conn.close()
 
 
 def clean_db(db_path="test.db"):
-    """清空数据库（测试前清理用）"""
+    """清空所有表"""
     conn = get_connection(db_path)
     cursor = conn.cursor()
 
+    cursor.execute("DELETE FROM alerts")
+    cursor.execute("DELETE FROM sensor_data")
+    cursor.execute("DELETE FROM devices")
     cursor.execute("DELETE FROM users")
 
     conn.commit()

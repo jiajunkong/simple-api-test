@@ -4,8 +4,7 @@
 
 ## 项目简介
 
-本项目实现了一个简单的用户管理接口服务，并基于 Pytest 搭建接口自动化测试框架，覆盖用户注册、登录、查询用户、Token 鉴权等测试场景。使用 SQLite 做数据持久化，在测试中加入数据库校验，验证接口返回数据与数据库数据的一致性。
-
+本项目实现了一个物联网设备管理平台的后端接口服务，并基于 Pytest 搭建接口自动化测试框架，覆盖用户注册、设备注册、设备登录、状态上报、传感器数据上报、告警生成等测试场景。使用 SQLite 做数据持久化，在测试中加入数据库校验，验证接口返回数据与数据库数据的一致性。
 ## 技术栈
 
 - Python 3.13
@@ -20,9 +19,11 @@
 ```
 simple-api-test/
 ├── api/                # 接口封装
-│   └── user_api.py
+│   ├── user_api.py
+│   └── device_api.py
 ├── cases/              # 测试用例
-│   └── test_user.py
+│   ├── test_user.py
+│   └── test_device.py
 ├── config/             # 配置文件
 │   └── config.py
 ├── data/               # 测试数据
@@ -32,7 +33,7 @@ simple-api-test/
 ├── utils/              # 工具类
 │   └── request_util.py
 ├── server.py           # Flask 后端服务
-├── requirements.txt   # 项目依赖
+├── requirements.txt    # 项目依赖
 ├── pytest.ini          # Pytest 配置
 └── README.md
 

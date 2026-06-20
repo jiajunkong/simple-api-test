@@ -12,5 +12,25 @@
         "password": "123456",
         "wrong_password": "wrong"
     },
-    "not_exist_user": "notexistuser"
+    "not_exist_user": "notexistuser",
+    "valid_device": {
+        "device_id": "device001",
+        "device_name": "温度传感器",
+        "device_type": "temperature_sensor"
+    },
+    "duplicate_device": {
+        "device_id": "device002",
+        "device_name": "湿度传感器",
+        "device_type": "humidity_sensor"
+    },
+    "sensor_data": {
+        "temperature": 25.5,
+        "humidity": 60.0,
+        "battery": 80
+    },
+    "alert_data": {
+        "temperature": 55.0,
+        "humidity": 60.0,
+        "battery": 15
+    }
 }
