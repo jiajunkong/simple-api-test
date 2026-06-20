@@ -1,17 +1,30 @@
 import json
 import uuid
+import sqlite3
 import pytest
 from api.user_api import UserAPI
+from db.db_init import init_db, clean_db
 
 
 # 加载测试数据
 with open("data/test_data.json", encoding="utf-8") as f:
     TEST_DATA = json.load(f)
 
+DB_PATH = "test.db"
+
 
 def generate_username(prefix):
     """生成唯一用户名，避免重复注册"""
     return prefix + "_" + str(uuid.uuid4())[:8]
+
+
+@pytest.fixture(autouse=True)
+def setup_db():
+    """每个测试用例执行前初始化数据库"""
+    init_db(DB_PATH)
+    clean_db(DB_PATH)
+    yield
+    clean_db(DB_PATH)
 
 
 @pytest.fixture
@@ -30,6 +43,7 @@ class TestUser:
         assert res.status_code == 200
         assert res.json()["code"] == 200
         assert res.json()["message"] == "注册成功"
+        assert "user_id" in res.json()["data"]
 
     def test_register_duplicate(self, api):
         """测试重复注册"""
@@ -110,3 +124,50 @@ class TestUser:
 
         assert res.status_code == 200
         assert res.json()["data"]["username"] == username
+
+
+class TestDatabase:
+    """数据库校验测试"""
+
+    def test_register_db_check(self, api):
+        """注册后校验数据库是否正确插入"""
+        data = TEST_DATA["valid_user"]
+        username = generate_username(data["username"])
+
+        res = api.register(username, data["password"])
+
+        assert res.status_code == 200
+
+        # 查询数据库验证
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT username, password FROM users WHERE username = ?",
+            (username,)
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        assert user is not None
+        assert user[0] == username
+        assert user[1] == data["password"]
+
+    def test_register_return_id_matches_db(self, api):
+        """注册返回的user_id和数据库里的id一致"""
+        data = TEST_DATA["valid_user"]
+        username = generate_username(data["username"])
+
+        res = api.register(username, data["password"])
+        user_id = res.json()["data"]["user_id"]
+
+        # 查询数据库验证id
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id FROM users WHERE username = ?",
+            (username,)
+        )
+        user = cursor.fetchone()
+        conn.close()
+
+        assert user[0] == user_id
